@@ -15,16 +15,9 @@ Aplicación de escritorio desarrollada en Python que permite consultar el Archiv
 
 ## Metodología
 
-**Ágil (Scrum)**
+**Ágil (Kanban)**
 
-El proyecto se desarrolla bajo un enfoque ágil con entregas incrementales, priorizando las funcionalidades de mayor valor para el usuario. Las historias de usuario definen los requisitos y permiten una planificación flexible en sprints de 1 a 2 semanas, facilitando la adaptación a cambios y la retroalimentación continua.
-
-**Sprints planificados:**
-- **Sprint 1:** Carga eficiente de datos CSV con Pandas y estructura base del proyecto.
-- **Sprint 2:** Panel de consulta con menús desplegables y botones Buscar/Limpiar.
-- **Sprint 3:** Visualización de resultados en formato tabular.
-- **Sprint 4:** Ordenamiento por columnas con flechas ascendentes/descendentes.
-- **Sprint 5:** Enlaces a NASA y funcionalidades adicionales.
+El proyecto se desarrolla bajo un enfoque **Kanban**, una metodología ágil que permite una entrega continua y rápida, ideal para proyectos con plazos ajustados. A diferencia de otros métodos, permite priorizar y ejecutar tareas de manera secuencial según su urgencia e importancia.
 
 ## Tecnologías utilizadas
 

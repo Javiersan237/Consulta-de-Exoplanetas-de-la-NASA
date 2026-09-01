@@ -70,4 +70,4 @@ def download_exoplanet_data():
         sys.exit(1)
 
 if __name__ == "__main__":
-    download_exoplanet_data()
+    download_exoplanet_data()# Version: 1.0.0 - Issue #1 

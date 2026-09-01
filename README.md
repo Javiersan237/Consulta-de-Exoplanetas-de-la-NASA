@@ -19,6 +19,15 @@ Aplicación de escritorio desarrollada en Python que permite consultar el Archiv
 
 El proyecto se desarrolla bajo un enfoque **Kanban**, una metodología ágil que permite una entrega continua y rápida, ideal para proyectos con plazos ajustados. A diferencia de otros métodos, permite priorizar y ejecutar tareas de manera secuencial según su urgencia e importancia.
 
+### Ventajas de Kanban para este proyecto
+
+- ✅ **Entrega continua:** Se puede entregar el MVP funcional aunque no estén todas las tareas.
+- ✅ **Flexibilidad total:** Permite cambiar prioridades al instante sin afectar el flujo.
+- ✅ **Visualización clara:** El tablero muestra el estado de cada tarea en todo momento.
+- ✅ **Sin reuniones:** No requiere planificación de sprints ni ceremonias.
+- ✅ **Adaptable a emergencias:** Perfecto para proyectos con plazos ajustados.
+
+
 ## Tecnologías utilizadas
 
 - **Python 3.8+** - Lenguaje de programación principal

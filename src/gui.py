@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
 import sys
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -23,11 +24,11 @@ class ExoplanetApp:
         'bg_primary': '#0B0B1A',
         'bg_secondary': '#1A1A3A',
         'bg_combobox': '#0D1B2A',
-        'bg_panel': '#2C1A4D',               # Fondo morado para paneles
+        'bg_panel': '#2C1A4D',
         'text_primary': '#FFFFFF',
         'text_secondary': '#A0C4E8',
         'border_color': '#4A8FE4',
-        'border_panel': '#A78BFA',           # Borde morado claro
+        'border_panel': '#A78BFA',
     }
     
     def __init__(self, root):
@@ -42,6 +43,7 @@ class ExoplanetApp:
         self.query_engine = None
         self.bg_image = None
         self.bg_canvas = None
+        self.current_results = pd.DataFrame()
         
         self.setup_styles()
         self.setup_background()
@@ -68,27 +70,24 @@ class ExoplanetApp:
             relief='flat'
         )
         
-        # ------------------- PANEL CON BORDE ALINEADO -------------------
         style.configure(
             'NASA.TLabelframe',
-            background=self.COLORS['bg_panel'],      # Fondo morado
+            background=self.COLORS['bg_panel'],
             foreground=self.COLORS['text_primary'],
             relief='solid',
-            borderwidth=3,                           # Borde más delgado
+            borderwidth=3,
             bordercolor=self.COLORS['border_panel']
         )
         
-        # Título alineado con el borde superior
         style.configure(
             'NASA.TLabelframe.Label',
-            background=self.COLORS['bg_panel'],      # Mismo fondo morado
+            background=self.COLORS['bg_panel'],
             foreground='#FFFFFF',
             font=('Helvetica', 12, 'bold'),
             relief='flat',
             borderwidth=0,
-            padding=(8, 1)                           # padding vertical mínimo
+            padding=(8, 1)
         )
-        # -------------------------------------------------------------
         
         style.configure(
             'NASA.TLabel',
@@ -113,6 +112,29 @@ class ExoplanetApp:
             fieldbackground=[('readonly', self.COLORS['bg_combobox'])],
             background=[('active', self.COLORS['nasa_blue'])],
             foreground=[('active', '#FFFFFF')]
+        )
+        
+        # Estilo para la tabla (Treeview)
+        style.configure(
+            'NASA.Treeview',
+            background='#1A1A3A',
+            foreground='#FFFFFF',
+            fieldbackground='#1A1A3A',
+            borderwidth=1,
+            relief='solid'
+        )
+        style.configure(
+            'NASA.Treeview.Heading',
+            background=self.COLORS['nasa_blue'],
+            foreground='#FFFFFF',
+            font=('Helvetica', 10, 'bold'),
+            borderwidth=1,
+            relief='solid'
+        )
+        style.map(
+            'NASA.Treeview',
+            background=[('selected', self.COLORS['nasa_light_blue'])],
+            foreground=[('selected', '#FFFFFF')]
         )
         
         style.configure(
@@ -268,22 +290,63 @@ class ExoplanetApp:
         self.status_label.grid(row=5, column=0, columnspan=2, pady=(10, 0), sticky=tk.W)
     
     def create_results_panel(self, parent):
+        """Crea el panel de resultados con tabla"""
         results_frame = ttk.LabelFrame(
             parent,
             text="📊 RESULTADOS",
             style='NASA.TLabelframe',
-            padding="20"
+            padding="15"
         )
         results_frame.pack(fill=tk.BOTH, expand=True)
         
-        self.result_label = ttk.Label(
+        # Frame para la tabla y scrollbars
+        table_frame = ttk.Frame(results_frame, style='NASA.TFrame')
+        table_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # Crear Treeview (tabla)
+        columns = ('pl_hostname', 'pl_discyear', 'pl_discmethod', 'pl_discfacility')
+        column_headers = {
+            'pl_hostname': '⭐ Estrella Anfitriona',
+            'pl_discyear': '📅 Año',
+            'pl_discmethod': '🔭 Método',
+            'pl_discfacility': '🏛️ Instalación'
+        }
+        
+        self.tree = ttk.Treeview(
+            table_frame,
+            columns=columns,
+            show='headings',
+            style='NASA.Treeview',
+            height=12
+        )
+        
+        # Configurar columnas
+        for col in columns:
+            self.tree.heading(col, text=column_headers[col])
+            self.tree.column(col, width=150, anchor=tk.W, minwidth=100)
+        
+        # Scrollbars
+        vsb = ttk.Scrollbar(table_frame, orient="vertical", command=self.tree.yview)
+        hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
+        self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+        
+        # Grid
+        self.tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        vsb.grid(row=0, column=1, sticky=(tk.N, tk.S))
+        hsb.grid(row=1, column=0, sticky=(tk.W, tk.E))
+        
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+        
+        # Label para cuando no hay resultados
+        self.empty_label = ttk.Label(
             results_frame,
             text="🪐 Los resultados aparecerán aquí después de buscar",
             style='NASA.TLabel',
             font=('Helvetica', 14, 'italic'),
             foreground=self.COLORS['text_secondary']
         )
-        self.result_label.pack(expand=True, pady=40)
+        self.empty_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
     
     def load_data(self):
         try:
@@ -319,12 +382,15 @@ class ExoplanetApp:
                 combo.set('')
     
     def perform_search(self):
+        """Ejecuta la búsqueda real y muestra los resultados"""
+        # Recolectar filtros
         filters = {}
         for col, var in self.query_vars.items():
             value = var.get().strip()
             if value:
                 filters[col] = value
         
+        # Validar que haya al menos un filtro
         if not filters:
             messagebox.showerror(
                 "Error de Búsqueda",
@@ -332,17 +398,66 @@ class ExoplanetApp:
             )
             return
         
-        filtros_texto = "\n".join([f"  • {k}: {v}" for k, v in filters.items()])
-        self.result_label.config(
-            text=f"🔍 Búsqueda ejecutada con {len(filters)} filtro(s):\n\n{filtros_texto}\n\n🪐 (Resultados completos en el Issue #5)"
-        )
-        self.status_label.config(text=f"✅ Búsqueda con {len(filters)} filtro(s)")
+        try:
+            self.status_label.config(text="⏳ Buscando exoplanetas...")
+            self.root.update()
+            
+            # Ejecutar búsqueda
+            results = self.query_engine.search(filters)
+            self.current_results = results
+            
+            # Mostrar resultados
+            self.display_results(results)
+            
+            if len(results) == 0:
+                self.status_label.config(text="🔍 No se encontraron resultados")
+            else:
+                self.status_label.config(text=f"✅ {len(results)} resultados encontrados")
+                
+        except Exception as e:
+            messagebox.showerror("Error de Búsqueda", f"Error al buscar:\n\n{str(e)}")
+            self.status_label.config(text="❌ Error en la búsqueda")
+    
+    def display_results(self, results: pd.DataFrame):
+        """Muestra los resultados en la tabla"""
+        # Limpiar tabla
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        
+        # Ocultar/mostrar empty_label
+        if results.empty:
+            self.empty_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+            return
+        else:
+            self.empty_label.place_forget()
+        
+        # Insertar datos
+        for _, row in results.iterrows():
+            values = []
+            for col in ['pl_hostname', 'pl_discyear', 'pl_discmethod', 'pl_discfacility']:
+                val = row.get(col, '')
+                if pd.isna(val):
+                    val = ''
+                values.append(str(val))
+            
+            self.tree.insert('', 'end', values=values)
     
     def clear_all(self):
+        """Limpia todas las selecciones y resultados"""
+        # Limpiar comboboxes
         for var in self.query_vars.values():
             var.set('')
         
-        self.result_label.config(text="🪐 Los resultados aparecerán aquí después de buscar")
+        # Limpiar tabla
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        
+        # Mostrar empty_label
+        self.empty_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+        
+        # Resetear resultados
+        self.current_results = pd.DataFrame()
+        
         self.status_label.config(text="🧹 Panel limpiado | Listo para nueva búsqueda")
 
 def main():

@@ -526,10 +526,10 @@ class ExoplanetApp:
         
         self.status_label.config(text="🧹 Panel limpiado | Listo para nueva búsqueda")
 
-def main():
+
+
+if __name__ == "__main__":
     root = tk.Tk()
     app = ExoplanetApp(root)
     root.mainloop()
-
-if __name__ == "__main__":
-    main()
+    

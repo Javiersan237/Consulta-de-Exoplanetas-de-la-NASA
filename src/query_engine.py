@@ -15,12 +15,6 @@ class QueryEngine:
     def search(self, filters: Dict[str, Optional[str]]) -> pd.DataFrame:
         """
         Busca exoplanetas que coincidan con todos los filtros seleccionados
-        
-        Args:
-            filters: Diccionario con {columna: valor} para filtrar
-        
-        Returns:
-            DataFrame con los resultados (solo columnas de consulta)
         """
         if not filters:
             return pd.DataFrame()
@@ -47,14 +41,6 @@ class QueryEngine:
         """
         Ordena un DataFrame por la columna especificada
         SIN distinguir entre mayúsculas y minúsculas para texto
-        
-        Args:
-            df: DataFrame a ordenar
-            column: Nombre de la columna
-            ascending: True para ascendente, False para descendente
-        
-        Returns:
-            DataFrame ordenado
         """
         if df.empty or column not in df.columns:
             return df

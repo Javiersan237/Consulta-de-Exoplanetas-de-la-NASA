@@ -45,6 +45,10 @@ class ExoplanetApp:
         self.bg_canvas = None
         self.current_results = pd.DataFrame()
         
+        # Estado del ordenamiento
+        self.sort_column = None
+        self.sort_ascending = True
+        
         self.setup_styles()
         self.setup_background()
         self.create_widgets()
@@ -114,7 +118,6 @@ class ExoplanetApp:
             foreground=[('active', '#FFFFFF')]
         )
         
-        # Estilo para la tabla (Treeview)
         style.configure(
             'NASA.Treeview',
             background='#1A1A3A',
@@ -290,7 +293,7 @@ class ExoplanetApp:
         self.status_label.grid(row=5, column=0, columnspan=2, pady=(10, 0), sticky=tk.W)
     
     def create_results_panel(self, parent):
-        """Crea el panel de resultados con tabla"""
+        """Crea el panel de resultados con tabla ordenable"""
         results_frame = ttk.LabelFrame(
             parent,
             text="📊 RESULTADOS",
@@ -299,13 +302,12 @@ class ExoplanetApp:
         )
         results_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Frame para la tabla y scrollbars
         table_frame = ttk.Frame(results_frame, style='NASA.TFrame')
         table_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Crear Treeview (tabla)
-        columns = ('pl_hostname', 'pl_discyear', 'pl_discmethod', 'pl_discfacility')
-        column_headers = {
+        # Columnas de la tabla
+        self.columns = ('pl_hostname', 'pl_discyear', 'pl_discmethod', 'pl_discfacility')
+        self.column_headers = {
             'pl_hostname': '⭐ Estrella Anfitriona',
             'pl_discyear': '📅 Año',
             'pl_discmethod': '🔭 Método',
@@ -314,15 +316,19 @@ class ExoplanetApp:
         
         self.tree = ttk.Treeview(
             table_frame,
-            columns=columns,
+            columns=self.columns,
             show='headings',
             style='NASA.Treeview',
             height=12
         )
         
-        # Configurar columnas
-        for col in columns:
-            self.tree.heading(col, text=column_headers[col])
+        # Configurar columnas con bind para ordenar
+        for col in self.columns:
+            self.tree.heading(
+                col, 
+                text=self.column_headers[col],
+                command=lambda c=col: self.sort_by_column(c)
+            )
             self.tree.column(col, width=150, anchor=tk.W, minwidth=100)
         
         # Scrollbars
@@ -330,7 +336,6 @@ class ExoplanetApp:
         hsb = ttk.Scrollbar(table_frame, orient="horizontal", command=self.tree.xview)
         self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         
-        # Grid
         self.tree.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
         vsb.grid(row=0, column=1, sticky=(tk.N, tk.S))
         hsb.grid(row=1, column=0, sticky=(tk.W, tk.E))
@@ -338,7 +343,6 @@ class ExoplanetApp:
         table_frame.columnconfigure(0, weight=1)
         table_frame.rowconfigure(0, weight=1)
         
-        # Label para cuando no hay resultados
         self.empty_label = ttk.Label(
             results_frame,
             text="🪐 Los resultados aparecerán aquí después de buscar",
@@ -405,6 +409,8 @@ class ExoplanetApp:
             # Ejecutar búsqueda
             results = self.query_engine.search(filters)
             self.current_results = results
+            self.sort_column = None
+            self.sort_ascending = True
             
             # Mostrar resultados
             self.display_results(results)
@@ -427,6 +433,9 @@ class ExoplanetApp:
         # Ocultar/mostrar empty_label
         if results.empty:
             self.empty_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+            # Resetear flechas
+            for col in self.columns:
+                self.tree.heading(col, text=self.column_headers[col])
             return
         else:
             self.empty_label.place_forget()
@@ -434,13 +443,45 @@ class ExoplanetApp:
         # Insertar datos
         for _, row in results.iterrows():
             values = []
-            for col in ['pl_hostname', 'pl_discyear', 'pl_discmethod', 'pl_discfacility']:
+            for col in self.columns:
                 val = row.get(col, '')
                 if pd.isna(val):
                     val = ''
                 values.append(str(val))
             
             self.tree.insert('', 'end', values=values)
+        
+        # Actualizar flechas si hay columna de ordenamiento activa
+        if self.sort_column and self.sort_column in self.columns:
+            arrow = ' ▲' if self.sort_ascending else ' ▼'
+            for col in self.columns:
+                if col == self.sort_column:
+                    self.tree.heading(col, text=self.column_headers[col] + arrow)
+                else:
+                    self.tree.heading(col, text=self.column_headers[col])
+    
+    def sort_by_column(self, column: str):
+        """Ordena los resultados por la columna seleccionada"""
+        if self.current_results.empty:
+            return
+        
+        # Alternar orden si es la misma columna
+        if self.sort_column == column:
+            self.sort_ascending = not self.sort_ascending
+        else:
+            self.sort_column = column
+            self.sort_ascending = True
+        
+        # Ordenar el DataFrame (el método sort_dataframe ahora maneja mayúsculas/minúsculas)
+        sorted_df = self.query_engine.sort_dataframe(
+            self.current_results,
+            column,
+            self.sort_ascending
+        )
+        self.current_results = sorted_df
+        
+        # Mostrar los datos ordenados
+        self.display_results(sorted_df)
     
     def clear_all(self):
         """Limpia todas las selecciones y resultados"""
@@ -457,6 +498,12 @@ class ExoplanetApp:
         
         # Resetear resultados
         self.current_results = pd.DataFrame()
+        self.sort_column = None
+        self.sort_ascending = True
+        
+        # Resetear flechas
+        for col in self.columns:
+            self.tree.heading(col, text=self.column_headers[col])
         
         self.status_label.config(text="🧹 Panel limpiado | Listo para nueva búsqueda")
 

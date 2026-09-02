@@ -2,7 +2,19 @@
 
 ## Descripción
 
-Aplicación de escritorio desarrollada en Python que permite consultar el Archivo de Exoplanetas de la NASA de manera rápida y eficiente. El sistema carga un archivo CSV con datos de exoplanetas descubiertos y proporciona una interfaz gráfica intuitiva con menús desplegables para filtrar la información por año de descubrimiento, método de detección, estrella anfitriona e instalación que realizó el descubrimiento. La herramienta está diseñada para investigadores, estudiantes y entusiastas de la astronomía que necesitan acceder a información actualizada sobre exoplanetas de forma ágil, mostrando los resultados en formato tabular con capacidades de ordenamiento y enlaces directos a la página oficial de la NASA para obtener información detallada de cada planeta confirmado.
+**Justificación del proyecto**
+
+En la era actual de la astronomía, el número de exoplanetas descubiertos crece exponencialmente, superando los 5,000 confirmados. El Archivo de Exoplanetas de la NASA (NASA Exoplanet Archive) es la fuente más completa y confiable de datos sobre estos mundos lejanos, pero su acceso y consulta requieren conocimientos técnicos que limitan su uso por parte de estudiantes, divulgadores e investigadores no especializados en programación.
+
+Este proyecto nace con el propósito de **democratizar el acceso a los datos astronómicos**, ofreciendo una herramienta de escritorio intuitiva y visualmente atractiva que permita:
+
+- **Consultar** el archivo de exoplanetas sin necesidad de escribir código.
+- **Filtrar** por criterios clave (año, método, estrella, instalación).
+- **Visualizar** resultados de forma clara en una tabla interactiva.
+- **Explorar** información detallada mediante enlaces directos a la NASA.
+- **Ordenar** datos para facilitar el análisis comparativo.
+
+De esta manera, la aplicación se convierte en un puente entre la ciencia de datos y la curiosidad humana, fomentando el aprendizaje y la divulgación científica en un área que despierta gran interés público.
 
 ## User Stories
 
@@ -15,18 +27,26 @@ Aplicación de escritorio desarrollada en Python que permite consultar el Archiv
 
 ## Metodología
 
-**Ágil (Kanban)**
+**Kanban**
 
-El proyecto se desarrolla bajo un enfoque **Kanban**, una metodología ágil que permite una entrega continua y rápida, ideal para proyectos con plazos ajustados. A diferencia de otros métodos, permite priorizar y ejecutar tareas de manera secuencial según su urgencia e importancia.
+El proyecto se desarrolla bajo un enfoque **Kanban**, una metodología ágil que permite una entrega continua y rápida, ideal para proyectos con plazos ajustados. A diferencia de Scrum, Kanban no utiliza sprints fijos, lo que permite priorizar y ejecutar tareas de manera secuencial según su urgencia e importancia.
 
-### Ventajas de Kanban para este proyecto
+**Priorización de tareas (por orden de ejecución):**
 
-- ✅ **Entrega continua:** Se puede entregar el MVP funcional aunque no estén todas las tareas.
-- ✅ **Flexibilidad total:** Permite cambiar prioridades al instante sin afectar el flujo.
-- ✅ **Visualización clara:** El tablero muestra el estado de cada tarea en todo momento.
-- ✅ **Sin reuniones:** No requiere planificación de sprints ni ceremonias.
-- ✅ **Adaptable a emergencias:** Perfecto para proyectos con plazos ajustados.
+🔴 **URGENTES (Mínimo Viable Producto):**
+1. Descargar y cargar el CSV de la NASA
+2. Panel de consulta con menús desplegables
+3. Botones Buscar y Limpiar
+4. Mostrar resultados en formato tabular
+5. Validación de búsqueda vacía
 
+🟡 **IMPORTANTES (si el tiempo lo permite):**
+6. Ordenamiento con flechas ascendentes/descendentes
+7. Enlaces a la página oficial de la NASA
+
+🟢 **EXTRAS (mejoras adicionales):**
+8. Mejorar estilos visuales
+9. Mensajes de estado en tiempo real
 
 ## Tecnologías utilizadas
 
@@ -35,22 +55,12 @@ El proyecto se desarrolla bajo un enfoque **Kanban**, una metodología ágil que
 - **NumPy** - Operaciones numéricas optimizadas
 - **Tkinter** - Interfaz gráfica de usuario (incluida en Python)
 - **Pytest** - Pruebas unitarias
-
-## Características principales
-
-- 🔍 **Búsqueda multicriterio** por año, método, estrella anfitriona e instalación
-- 📊 **Visualización en tabla** con los resultados de la consulta
-- ⬆️⬇️ **Ordenamiento interactivo** ascendente/descendente por cualquier columna
-- 🔗 **Enlaces directos** a la página oficial del Exoplanet Archive de NASA
-- 🎯 **Interfaz intuitiva** con menús desplegables
-- ⚡ **Carga eficiente** de grandes volúmenes de datos
-- 🧹 **Botón Limpiar** para resetear búsquedas
-- 🚨 **Validación** de búsqueda sin filtros seleccionados
+- **Pillow** - Procesamiento de imágenes
 
 ## Instalación y uso
 
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tuusuario/exoplanet-consultor.git
-cd exoplanet-consultor
+git clone https://github.com/Javiersan237/Consulta-de-Exoplanetas-de-la-NASA.git
+cd Consulta-de-Exoplanetas-de-la-NASA

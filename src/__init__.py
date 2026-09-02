@@ -1,3 +1,5 @@
-"""Paquete principal del Consultor de Exoplanetas NASA """
-__version__ = "1.0.0" 
-__author__ = "Ortega Cortez Javier Aram" 
+"""
+Paquete principal del Consultor de Exoplanetas NASA
+"""
+__version__ = "1.0.0"
+__author__ = "Ortega Cortez Javier Aram"

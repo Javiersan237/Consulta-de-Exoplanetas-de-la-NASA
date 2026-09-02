@@ -7,11 +7,13 @@ from tkinter import ttk, messagebox
 from pathlib import Path
 import sys
 import pandas as pd
+import webbrowser
 
 sys.path.insert(0, str(Path(__file__).parent))
 
 from data_loader import ExoplanetDataLoader
 from query_engine import QueryEngine
+from utils import generate_nasa_url, open_nasa_url
 
 class ExoplanetApp:
     """Aplicación principal de consulta de exoplanetas"""
@@ -293,7 +295,7 @@ class ExoplanetApp:
         self.status_label.grid(row=5, column=0, columnspan=2, pady=(10, 0), sticky=tk.W)
     
     def create_results_panel(self, parent):
-        """Crea el panel de resultados con tabla ordenable"""
+        """Crea el panel de resultados con tabla ordenable y enlaces"""
         results_frame = ttk.LabelFrame(
             parent,
             text="📊 RESULTADOS",
@@ -343,6 +345,9 @@ class ExoplanetApp:
         table_frame.columnconfigure(0, weight=1)
         table_frame.rowconfigure(0, weight=1)
         
+        # Bind doble clic para abrir enlace
+        self.tree.bind('<Double-1>', self.on_tree_double_click)
+        
         self.empty_label = ttk.Label(
             results_frame,
             text="🪐 Los resultados aparecerán aquí después de buscar",
@@ -351,6 +356,20 @@ class ExoplanetApp:
             foreground=self.COLORS['text_secondary']
         )
         self.empty_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+    
+    def on_tree_double_click(self, event):
+        """Abre la página de la NASA al hacer doble clic en una fila"""
+        # Obtener la fila seleccionada
+        item = self.tree.selection()
+        if not item:
+            return
+        
+        # Obtener el nombre de la estrella (primera columna)
+        values = self.tree.item(item[0], 'values')
+        if values and len(values) > 0:
+            hostname = values[0]
+            if hostname and hostname != '':
+                open_nasa_url(hostname)
     
     def load_data(self):
         try:
@@ -472,7 +491,7 @@ class ExoplanetApp:
             self.sort_column = column
             self.sort_ascending = True
         
-        # Ordenar el DataFrame (el método sort_dataframe ahora maneja mayúsculas/minúsculas)
+        # Ordenar el DataFrame
         sorted_df = self.query_engine.sort_dataframe(
             self.current_results,
             column,
